@@ -1,73 +1,38 @@
-# name: Fullstack CICD
-
-# on:
-#   push:
-#     branches:
-#       - main
-
-# jobs:
-#   build-and-deploy:
-#     runs-on: self-hosted
-
-#     steps:
-#       - name: Checkout Repository
-#         uses: actions/checkout@v2
-
-#       - name: Set up Node.js
-#         uses: actions/setup-node@v2
-#         with:
-#           node-version: '14' # Specify your desired Node.js version
-
-#       - name: Install Backend Dependencies
-#         run: |
-#           cd Backend
-#           npm install
-
-#       - name: Install Frontend Dependencies
-#         run: |
-#           cd Frontend
-#           npm install
-
-
-
-#       - name: Build Frontend
-#         run: |
-#           cd Frontend
-#           npm run build
-
-      # Deployment steps (e.g., to a hosting service like Azure, AWS, etc.)
-      # - name: Deploy Backend to Hosting Service
-      #   run: |
-      #     # Add backend deployment steps here
-      #     # Example: Deploy to Azure, AWS, etc.
-
-      # - name: Deploy Frontend to Hosting Service
-      #   run: |
-      #     # Add frontend deployment steps here
-      #     # Example: Deploy to Azure, AWS, etc.
-
-
-
-name: Node.js CICD
-
-
+name: Deployment From Github To AWS
 on:
-    push: 
-        branches: [ main ]
-    
+  push:
+    branches:
+      - main
 jobs:
-     build-and-deploy:
-        runs-on: self-hosted
-
-        steps:
-        - uses: actions/checkout@v2
-        - name: Use Node.js ${{ matrix.node-version }}
-          uses: actions/setup-node@v2
-          with:
-                node-version: ${{ matrix.node-version }}
-        - run: |
-            cd Backend
-            npm i
-            cd Frontend
-            npm i
-            npm run build
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Latest Repo
+        uses: actions/checkout@master
+        
+      - name: Generate Deployment Package 
+        run: zip -r deploy.zip * -x "*node_modules*"
+        
+      - name: Get timestamp
+        uses: gerred/actions/current-time@master
+        id: current-time
+        
+      - name: Run string replace
+        uses: frabert/replace-string-action@master
+        id: format-time
+        with:
+          pattern: '[:\.]+'
+          string: "${{ steps.current-time.outputs.time }}"
+          replace-with: '-'
+          flags: 'g'
+          
+      - name: Deploy to EB
+        uses: einaregilsson/beanstalk-deploy@v14
+        with:
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          application_name: devops-group-project
+          environment_name: Devops-group-project-env  
+          version_label: "devops-group-project-${{ steps.format-time.outputs.replaced }}"
+          region: eu-north-1
+          deployment_package: deploy.zip
