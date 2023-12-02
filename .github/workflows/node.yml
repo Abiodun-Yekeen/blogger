@@ -3,54 +3,54 @@ on:
   push:
     branches:
       - main
+
 jobs:
-  deploy:
+  deploy-backend:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Latest Repo
-        uses: actions/checkout@main
-        
-      - name: Generate Deployment Package 
-        run: zip -r deploy.zip * -x "*node_modules*"
-
-      - name: Check 'Frontend' folder for 'package.json'
-        run: |
-          if [ -f "Frontend/package.json" ]; then
-            echo "Found package.json in frontend folder"
-          else
-            echo "No package.json found in frontend folder"
-            exit 1
-          fi
-
-      - name: Check 'Backend' folder for 'package.json'
-        run: |
-          if [ -f "Backend/package.json" ]; then
-            echo "Found package.json in backend folder"
-          else
-            echo "No package.json found in backend folder"
-            exit 1
-          fi
-        
-      - name: Get timestamp
-        uses: gerred/actions/current-time@master
-        id: current-time
-        
-      - name: Run string replace
-        uses: frabert/replace-string-action@master
-        id: format-time
+      - name: Checkout Backend Repo
+        uses: actions/checkout@v2
         with:
-          pattern: '[:\.]+'
-          string: "${{ steps.current-time.outputs.time }}"
-          replace-with: '-'
-          flags: 'g'
-          
-      - name: Deploy to EB
+          path: backend # Checkout the backend into 'backend' directory
+
+      - name: Generate Backend Deployment Package
+        run: |
+          cd backend
+          zip -r backend-deploy.zip * -x "*node_modules*"
+        working-directory: ./backend
+
+      - name: Deploy Backend to EB
         uses: einaregilsson/beanstalk-deploy@v14
         with:
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          application_name: devops-group-project
-          environment_name: Devops-group-project-env  
-          version_label: "devops-group-project-${{ steps.format-time.outputs.replaced }}"
+          application_name: devops-backend
+          environment_name: Devops-backend-env  
+          version_label: "backend-${{ github.sha }}"
           region: eu-north-1
-          deployment_package: deploy.zip
+          deployment_package: backend/backend-deploy.zip
+
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Frontend Repo
+        uses: actions/checkout@v2
+        with:
+          path: frontend # Checkout the frontend into 'frontend' directory
+
+      - name: Generate Frontend Deployment Package
+        run: |
+          cd frontend
+          zip -r frontend-deploy.zip * -x "*node_modules*"
+        working-directory: ./frontend
+
+      - name: Deploy Frontend to EB
+        uses: einaregilsson/beanstalk-deploy@v14
+        with:
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          application_name: devops-frontend
+          environment_name: Devops-frontend-env    
+          version_label: "frontend-${{ github.sha }}"
+          region: eu-north-1
+          deployment_package: frontend/frontend-deploy.zip
