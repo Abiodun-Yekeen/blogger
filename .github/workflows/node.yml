@@ -16,7 +16,7 @@ jobs:
       - name: Generate Backend Deployment Package
         run: |
           cd Backend
-          zip -r backend-deploy.zip * -x "*node_modules*"
+          zip -r ../backend-deploy.zip * -x "*node_modules*"
         working-directory: ./Backend
 
       - name: Deploy Backend to EB
@@ -28,7 +28,7 @@ jobs:
           environment_name: Devops-backend-env  
           version_label: "backend-${{ github.sha }}"
           region: eu-north-1
-          deployment_package: Backend/backend-deploy.zip
+          deployment_package: ../backend-deploy.zip
 
   deploy-frontend:
     runs-on: ubuntu-latest
@@ -41,7 +41,7 @@ jobs:
       - name: Generate Frontend Deployment Package
         run: |
           cd Frontend
-          zip -r frontend-deploy.zip * -x "*node_modules*"
+          zip -r ../frontend-deploy.zip * -x "*node_modules*"
         working-directory: ./Frontend
 
       - name: Deploy Frontend to EB
@@ -53,4 +53,4 @@ jobs:
           environment_name: Devops-frontend-env    
           version_label: "frontend-${{ github.sha }}"
           region: eu-north-1
-          deployment_package: Frontend/frontend-deploy.zip
+          deployment_package: ../frontend-deploy.zip
