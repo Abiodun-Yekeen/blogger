@@ -16,7 +16,7 @@ jobs:
       - name: Generate Backend Deployment Package
         run: |
           cd Backend
-          zip -r ../backend-deploy.zip * -x "*node_modules*"
+          zip -r backend-deploy.zip * -x "*node_modules*"
         working-directory: ./Backend
 
       - name: Deploy Backend to EB
@@ -41,7 +41,7 @@ jobs:
       - name: Generate Frontend Deployment Package
         run: |
           cd Frontend
-          zip -r ../frontend-deploy.zip * -x "*node_modules*"
+          zip -r frontend-deploy.zip * -x "*node_modules*"
         working-directory: ./Frontend
 
       - name: Deploy Frontend to EB
