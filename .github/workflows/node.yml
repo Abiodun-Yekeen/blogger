@@ -13,18 +13,18 @@ jobs:
       - name: Generate Deployment Package 
         run: zip -r deploy.zip * -x "*node_modules*"
 
-      - name: Check 'frontend' folder for 'package.json'
+      - name: Check 'Frontend' folder for 'package.json'
         run: |
-          if [ -f "frontend/package.json" ]; then
+          if [ -f "Frontend/package.json" ]; then
             echo "Found package.json in frontend folder"
           else
             echo "No package.json found in frontend folder"
             exit 1
           fi
 
-      - name: Check 'backend' folder for 'package.json'
+      - name: Check 'Backend' folder for 'package.json'
         run: |
-          if [ -f "backend/package.json" ]; then
+          if [ -f "Backend/package.json" ]; then
             echo "Found package.json in backend folder"
           else
             echo "No package.json found in backend folder"
