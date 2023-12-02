@@ -11,13 +11,13 @@ jobs:
       - name: Checkout Backend Repo
         uses: actions/checkout@v2
         with:
-          path: backend # Checkout the backend into 'backend' directory
+          path: Backend # Checkout the backend into 'backend' directory
 
       - name: Generate Backend Deployment Package
         run: |
-          cd backend
+          cd Backend
           zip -r backend-deploy.zip * -x "*node_modules*"
-        working-directory: ./backend
+        working-directory: ./Backend
 
       - name: Deploy Backend to EB
         uses: einaregilsson/beanstalk-deploy@v14
@@ -28,7 +28,7 @@ jobs:
           environment_name: Devops-backend-env  
           version_label: "backend-${{ github.sha }}"
           region: eu-north-1
-          deployment_package: backend/backend-deploy.zip
+          deployment_package: Backend/backend-deploy.zip
 
   deploy-frontend:
     runs-on: ubuntu-latest
@@ -36,13 +36,13 @@ jobs:
       - name: Checkout Frontend Repo
         uses: actions/checkout@v2
         with:
-          path: frontend # Checkout the frontend into 'frontend' directory
+          path: Frontend # Checkout the frontend into 'frontend' directory
 
       - name: Generate Frontend Deployment Package
         run: |
-          cd frontend
+          cd Frontend
           zip -r frontend-deploy.zip * -x "*node_modules*"
-        working-directory: ./frontend
+        working-directory: ./Frontend
 
       - name: Deploy Frontend to EB
         uses: einaregilsson/beanstalk-deploy@v14
@@ -53,4 +53,4 @@ jobs:
           environment_name: Devops-frontend-env    
           version_label: "frontend-${{ github.sha }}"
           region: eu-north-1
-          deployment_package: frontend/frontend-deploy.zip
+          deployment_package: Frontend/frontend-deploy.zip
