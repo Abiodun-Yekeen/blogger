@@ -8,10 +8,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Latest Repo
-        uses: actions/checkout@master
+        uses: actions/checkout@main
         
       - name: Generate Deployment Package 
         run: zip -r deploy.zip * -x "*node_modules*"
+
+      - name: Check 'frontend' folder for 'package.json'
+        run: |
+          if [ -f "frontend/package.json" ]; then
+            echo "Found package.json in frontend folder"
+          else
+            echo "No package.json found in frontend folder"
+            exit 1
+          fi
+
+      - name: Check 'backend' folder for 'package.json'
+        run: |
+          if [ -f "backend/package.json" ]; then
+            echo "Found package.json in backend folder"
+          else
+            echo "No package.json found in backend folder"
+            exit 1
+          fi
         
       - name: Get timestamp
         uses: gerred/actions/current-time@master
